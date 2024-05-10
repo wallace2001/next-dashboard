@@ -1,5 +1,7 @@
 "use client";
 
+import Loader from "@/components/Loader";
+import EmptyState from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
@@ -8,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CREATE_EXPERIENCE } from "@/graphql/actions/experience/create-experience.action";
 import { DELETE_EXPERIENCE } from "@/graphql/actions/experience/delete-experience";
 import { GET_EXPERIENCES } from "@/graphql/actions/experience/get-experience.action";
+import { FETCH_PROFILE } from "@/graphql/actions/profile/fetch-profile.action";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,6 +46,7 @@ const ExperiencesPage = () => {
     const [createExperienceMutation] = useMutation(CREATE_EXPERIENCE);
     const [deleteExperienceMutation] = useMutation(DELETE_EXPERIENCE);
     const { data: experiences, refetch } = useQuery(GET_EXPERIENCES);
+    const { data: profile, loading: profileLoading } = useQuery(FETCH_PROFILE);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -95,6 +99,19 @@ const ExperiencesPage = () => {
 
         window.location.reload();
     };
+
+    if (profileLoading) {
+        return <Loader />
+    }
+
+    if (!profile?.fetchProfile && !profileLoading) {
+        return (
+            <EmptyState 
+                title = "Seu usuário ainda não possui um perfil."
+                subtitle= "Vá até a página 'Home' e comece a criar seu portfólio."
+            />
+        )
+    }
 
     return (
         <div>

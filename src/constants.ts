@@ -1,10 +1,17 @@
-import { CircleUserRound, Contact, Home, MessageSquare, Newspaper, Settings } from "lucide-react";
+import { CircleUserRound, Contact, Home, Link, MessageSquare, Newspaper, Settings } from "lucide-react";
 
 export const ROUTES = [
     {
         label: 'Home',
         icon: Home,
         href: '/dashboard/home',
+        color: 'text-foreground/50',
+        bgColor: "bg-violet-500/40",
+    },
+    {
+        label: 'Links',
+        icon: Link,
+        href: '/dashboard/links',
         color: 'text-foreground/50',
         bgColor: "bg-violet-500/40",
     },

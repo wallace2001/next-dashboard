@@ -20,98 +20,65 @@ import { generateArrayFromInput, generateDefaultValues, generateInitialValues, g
 import _ from "lodash";
 import { UNLINK_LINK_PROFILE } from "@/graphql/actions/profile/unlink-link-profile";
 import { LINK_PROFILE } from "@/graphql/actions/profile/link-profile";
+import Loader from "@/components/Loader";
 
-const createFormSchema = (fields: Record<string, z.ZodType<any, any>>) => {
-    let schema: any = z.object({
-        techs: z.string().min(1, {
-            message: "Selecione as tecnologias.",
-        }),
-        links: z.string().min(1, {
-            message: "Selecione as tecnologias.",
-        }),
-        title: z.string().min(1, {
-            message: "Titulo é obrigatório.",
-        }),
-        description: z.string().min(1, {
-            message: "Descrição é obrigatório.",
-        }),
-    });
-
-    Object.entries(fields).forEach(([fieldName, fieldSchema]) => {
-        schema = schema.extend({
-            [fieldName]: fieldSchema,
-        });
-    });
-
-    return schema;
-};
+const formSchema = z.object({
+    techs: z.string().min(1, {
+        message: "Selecione as tecnologias.",
+    }),
+    title: z.string().min(1, {
+        message: "Titulo é obrigatório.",
+    }),
+    description: z.string().min(1, {
+        message: "Descrição é obrigatório.",
+    }),
+});
 
 const HomePage = () => {
-    const [linksSelecteds, setLinksSelects] = useState<any[]>([]);
 
     const { data: techs } = useQuery(FETCH_TECHS);
-    const { data: profile, refetch: refetchProfile } = useQuery(FETCH_PROFILE);
-    const { data: links } = useQuery(FETCH_LINKS);
+    const { data: profileData, refetch: refetchProfile, loading: profileLoading } = useQuery(FETCH_PROFILE);
 
-    const [ unlinkLinkProfileMutation ] = useMutation(UNLINK_LINK_PROFILE);
-    const [ linkProfileMutation ] = useMutation(LINK_PROFILE);
+    const profile = profileData?.fetchProfile;
+
     const [createProfileMutation] = useMutation(CREATE_PROFILE);
-
-    const formSchema = createFormSchema({
-        ...generateLinkFormSchema(
-            profile?.fetchProfile.links || linksSelecteds
-        ),
-    });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: generateDefaultValues(profile?.fetchProfile),
+        defaultValues: generateDefaultValues(profile),
     });
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
         const arrayTechs = generateArrayFromInput(data.techs, techs?.getAllTechs);
-        const arrayLinks = generateArrayFromInput(data.links, links?.getAllLinks);
-        const linksGroup = generateLinksGroup(data, profile?.fetchProfile);
 
         const dataForm = {
             title: data.title,
             description: data.description,
-            linksGroup,
             techs: arrayTechs,
-            links: arrayLinks,
-            id: profile?.fetchProfile.id,
+            id: profile?.id,
         };
 
         await createProfileMutation({ variables: { createProfileDto: dataForm } })
             .then(() => {
-                toast.success("Food uploaded successfully!");
-                const initialValues = generateInitialValues(profile?.fetchProfile);
+                toast.success("Profile uploaded successfully!");
+                const initialValues = generateInitialValues(profile);
                 form.reset(initialValues);
                 refetchProfile();
+            }).catch(err => {
+                toast.error("Error to created profile.");
             });
     }
 
-    function generateLinksGroup(data: z.infer<typeof formSchema>, profile: Profile | undefined): LinkProfile[] | unknown {
-        return _.uniqBy([...profile?.links || [], ...linksSelecteds], 'name').map((link) => {
-            if (!!data[link.icon]) {
-                const exists = profile?.linkProfiles?.find((l) => l.link.icon === link.icon);
-                const linkForm = {
-                    id: exists?.id,
-                    link: { id: link.id, name: link.name, icon: link.icon },
-                    linkUrl: data[link.icon],
-                };
-                if (exists?.id) linkForm.id = exists.id;
-                return linkForm;
-            }
-        }) ?? [];
-    }
-    
     useEffect(() => {
-        if (profile?.fetchProfile) {
-            const profileFormatted = generateInitialValues(profile?.fetchProfile);
+        if (profile) {
+            const profileFormatted = generateInitialValues(profile);
             form.reset(profileFormatted);
         }
-    }, [form, profile?.fetchProfile]);
+    }, [form, profile]);
+
+    if (profileLoading) {
+        return <Loader />
+    }
 
     return (
         <div>
@@ -158,61 +125,6 @@ const HomePage = () => {
                             </FormItem>
                         )}
                     />
-                    <FormField
-                        control={form.control}
-                        name="links"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Links</FormLabel>
-                                <FormControl>
-                                    <MultipleSelect 
-                                        onDelete={async (item: any) => {
-                                            const items = linksSelecteds.filter(d => d.name !== item.name);
-                                            await unlinkLinkProfileMutation({
-                                                variables: {
-                                                    unlinkLinkProfileDto: {
-                                                        id: item.id
-                                                    }
-                                                }
-                                            });
-                                            refetchProfile();
-                                            setLinksSelects(items);
-                                        }} 
-                                        onSelect={async (item: any) => {
-                                            await linkProfileMutation({
-                                                variables: {
-                                                    linkProfileDto: {
-                                                        id: item.id
-                                                    }
-                                                }
-                                            });
-                                            refetchProfile();
-                                            setLinksSelects(prev => [...prev, item]);
-                                        }} 
-                                        data={links?.getAllLinks} 
-                                        {...field} 
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    {(profile?.fetchProfile?.links || linksSelecteds)?.map((link: Link) => (
-                        <FormField
-                            control={form.control}
-                            name={link.icon}
-                            key={link.id}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Link do {link.name}</FormLabel>
-                                    <FormControl>
-                                        <Input type="url" className="bg-foreground/5 h-14" placeholder={`Link do ${link.name}`} {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    ))}
                     <Button type="submit" className="w-20 h-10">Salvar</Button>
                 </form>
             </Form>

@@ -15,6 +15,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { GET_PROJECT_PAGE } from "@/graphql/actions/project/get-project-page.action";
 import { CREATE_PROJECT_PAGE } from "@/graphql/actions/project/create-project-page.action";
 import toast from "react-hot-toast";
+import EmptyState from "@/components/empty-state";
+import { FETCH_PROFILE } from "@/graphql/actions/profile/fetch-profile.action";
+import Loader from "@/components/Loader";
 
 const formSchema = z.object({
     title: z.string().min(1, {
@@ -28,9 +31,10 @@ const formSchema = z.object({
 const ProjectsPage = () => {
 
     const router = useRouter();
-    const { data: projects, refetch: refetchProfile } = useQuery(GET_PROJECTS);
+    const { data: projects, refetch } = useQuery(GET_PROJECTS);
     const [createProjectPageMutation] = useMutation(CREATE_PROJECT_PAGE);
     const { data: projectPageData } = useQuery(GET_PROJECT_PAGE);
+    const { data: profileData, loading: profileLoading } = useQuery(FETCH_PROFILE);
 
     const projectPage = projectPageData?.getProjectPage;
 
@@ -58,7 +62,7 @@ const ProjectsPage = () => {
     };
 
     useEffect(() => {
-        refetchProfile();
+        refetch();
 
         if (projectPage?.id) {
             form.reset({
@@ -67,6 +71,19 @@ const ProjectsPage = () => {
             });
         }
     }, [projectPage]);
+
+    if (profileLoading) {
+        return <Loader />
+    }
+
+    if (!profileData?.fetchProfile && !profileLoading) {
+        return (
+            <EmptyState 
+                title = "Seu usuário ainda não possui um perfil."
+                subtitle= "Vá até a página 'Home' e comece a criar seu portfólio."
+            />
+        )
+    }
 
     return (
         <div>

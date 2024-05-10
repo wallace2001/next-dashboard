@@ -1,10 +1,13 @@
 "use client";
 
+import Loader from "@/components/Loader";
+import EmptyState from "@/components/empty-state";
 import ImageUpload from "@/components/image-upload";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { CREATE_CURRICULUM } from "@/graphql/actions/curriculum/create-curriculum.action";
 import { GET_CURRICULUM } from "@/graphql/actions/curriculum/get-curriculum.action";
+import { FETCH_PROFILE } from "@/graphql/actions/profile/fetch-profile.action";
 import { UploadButton, UploadDropzone } from "@/lib/uploadthing";
 import { useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,6 +26,7 @@ const CurriculumPage = () => {
     const [createCurriculumMutation] = useMutation(CREATE_CURRICULUM);
     const [isLoading, setIsLoading] = useState(false);
     const { data } = useQuery(GET_CURRICULUM);
+    const { data: profile, loading: profileLoading } = useQuery(FETCH_PROFILE);
 
     const curriculum = data?.getCurriculum;
 
@@ -51,6 +55,19 @@ const CurriculumPage = () => {
             });
         }
     }, [form, curriculum]);
+
+    if (profileLoading) {
+        return <Loader />
+    }
+
+    if (!profile?.fetchProfile && !profileLoading) {
+        return (
+            <EmptyState 
+                title = "Seu usuário ainda não possui um perfil."
+                subtitle= "Vá até a página 'Home' e comece a criar seu portfólio."
+            />
+        )
+    }
 
     return (
         <div>

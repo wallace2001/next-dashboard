@@ -12,6 +12,8 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 import Editor from "@/components/Editor";
+import EmptyState from "@/components/empty-state";
+import Loader from "@/components/Loader";
 
 const formSchema = z.object({
     content: z.string().min(1, {
@@ -23,7 +25,7 @@ const formSchema = z.object({
 const AboutPage = () => {
 
     const [updateProfileMutation] = useMutation(UPDATE_ABOUT_PROFILE);
-    const { data: profile, refetch: refetchProfile } = useQuery(FETCH_PROFILE);
+    const { data: profile, refetch: refetchProfile, loading: profileLoading } = useQuery(FETCH_PROFILE);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -51,6 +53,19 @@ const AboutPage = () => {
             content: profile?.fetchProfile.about
         });
     }, [form, profile?.fetchProfile]);
+
+    if (profileLoading) {
+        return <Loader />
+    }
+
+    if (!profile?.fetchProfile && !profileLoading) {
+        return (
+            <EmptyState 
+                title = "Seu usuário ainda não possui um perfil."
+                subtitle= "Vá até a página 'Home' e comece a criar seu portfólio."
+            />
+        )
+    }
 
     return (
         <div>

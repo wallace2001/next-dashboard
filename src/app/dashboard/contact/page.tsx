@@ -13,6 +13,9 @@ import { z } from "zod";
 import _ from "lodash";
 import { CREATE_CONTACT } from "@/graphql/actions/contact/create-contact.action";
 import { GET_CONTACT } from "@/graphql/actions/contact/get-contact.action";
+import EmptyState from "@/components/empty-state";
+import { FETCH_PROFILE } from "@/graphql/actions/profile/fetch-profile.action";
+import Loader from "@/components/Loader";
 
 const formSchema = z.object({
     title: z.string().min(1, {
@@ -26,6 +29,7 @@ const formSchema = z.object({
 const Contact = () => {
     const [createContactMutation] = useMutation(CREATE_CONTACT);
     const { data } = useQuery(GET_CONTACT);
+    const { data: profile, loading: profileLoading } = useQuery(FETCH_PROFILE);
 
     const contact = data?.getContact;
     
@@ -56,6 +60,19 @@ const Contact = () => {
             });
         }
     }, [form, contact]);
+
+    if (profileLoading) {
+        return <Loader />
+    }
+
+    if (!profile?.fetchProfile && !profileLoading) {
+        return (
+            <EmptyState 
+                title = "Seu usuário ainda não possui um perfil."
+                subtitle= "Vá até a página 'Home' e comece a criar seu portfólio."
+            />
+        )
+    }
 
     return (
         <div>
