@@ -1,10 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Expand, ShoppingCart } from "lucide-react";
-import IconButton from "../../../../components/ui/icon-button";
 import { useRouter } from "next/navigation";
-import { MouseEventHandler } from "react";
 import { Project } from "../../../../../types";
 
 interface ProjectCardProps {
@@ -31,7 +28,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 <div className="flex justify-center items-center">
                     <div className="lg:w-[60%] h-[25rem] w-full aspect-square rounded-xl bg-gray-300 relative">
                         <Image
-                            src={item?.image.url}
+                            src={item?.images[0].url}
                             fill
                             alt="Image"
                             className="aspect-square object-cover rounded-md"
@@ -39,15 +36,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                     </div>
                 </div>
                 <div className="flex flex-col">
-                    <p className="font-semibold text-lg mt-2">{item.title}</p>
+                    <p className="font-semibold text-lg mt-2 text-foreground">{item.title}</p>
                     <p className="text-sm text-gray-500">
                         {truncatedDescription}
                     </p>
                 </div>
             </div>
-            {/* <div className="flex items-center justify-between">
-                <Currency value={item.price}/>
-            </div> */}
         </div>
     );
 }

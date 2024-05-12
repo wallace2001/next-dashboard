@@ -10,7 +10,7 @@ export const GET_PROJECT_BY_ID: DocumentNode = gql`
       title
       description
       content
-      image {
+      images {
         id
         url
       }

@@ -3,7 +3,7 @@ export interface Project {
     title: string;
     description: string;
     content: string;
-    image: Image;
+    images: Image[];
   };
   
   export interface Image {

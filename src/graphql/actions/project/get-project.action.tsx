@@ -8,7 +8,7 @@ query {
     title
     description
     content
-    image {
+    images {
       id
       url
     }

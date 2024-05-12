@@ -67,7 +67,7 @@ const ProjectPage = ({params}: {params: IParams}) => {
             title: data.title,
             description: data.description,
             content: data.content,
-            imageUrl: data.images[0].url
+            imagesUrl: data.images
         };
 
         createProjectMutation({
@@ -99,7 +99,7 @@ const ProjectPage = ({params}: {params: IParams}) => {
                 title: project?.getProjectById.title,
                 description: project?.getProjectById.description,
                 content: project?.getProjectById.content,
-                images: [project?.getProjectById.image]
+                images: project?.getProjectById.images
             });
         }
     }, [form, project?.getProjectById]);
@@ -112,7 +112,7 @@ const ProjectPage = ({params}: {params: IParams}) => {
             <h2 className="text-4xl mt-2 font-bold">{project?.getProjectById.title}</h2>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full mt-8">
-                                        <FormField
+                    <FormField
                         control={form.control}
                         name="images"
                         render={({ field }) => (
@@ -121,9 +121,8 @@ const ProjectPage = ({params}: {params: IParams}) => {
                                 <FormControl>
                                     <ImageUpload
                                         value={field.value.map(image => image.url)}
-                                        // disabled={loading}
-                                        onChange={(url) => field.onChange([{ url }])}
-                                        onRemove={() => field.onChange([])}
+                                        onChange={(url) => field.onChange([...field.value, { url }])}
+                                        onRemove={(url) => field.onChange([...field.value.filter(current => current.url !== url)])}
                                     />
                                 </FormControl>
                                 <FormMessage />
