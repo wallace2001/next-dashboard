@@ -23,7 +23,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         router.push(`/dashboard/projects/${item.id}`);
     }
     return (
-        <div onClick={handleClick} className="md:h-[30rem] lg:h-[25rem] bg-backgroundContent text-white group cursor-pointer rounded-xl border p-3 space-y-4 text-sm flex-col group flex w-full justify-start font-medium hover:text-foreground hover:bg-foreground/15 transition">
+        <div onClick={handleClick} className="md:h-[30rem] lg:h-[28rem] bg-backgroundContent text-white group cursor-pointer rounded-xl border p-3 space-y-4 text-sm flex-col group flex w-full justify-start font-medium hover:text-foreground hover:bg-foreground/15 transition">
             <div className="flex-1">
                 <div className="flex justify-center items-center">
                     <div className="lg:w-[60%] w-full aspect-square rounded-xl bg-gray-300 relative">
