@@ -15,7 +15,6 @@ const montserrat = Montserrat({ weight: "600", subsets: ["latin"] });
 const Sidebar = () => {
 
     const pathname = usePathname();
-    console.log(pathname.includes());
 
     return (
         <div className="space-y-4 py-4 flex flex-col h-full bg-backgroundSidebar">
