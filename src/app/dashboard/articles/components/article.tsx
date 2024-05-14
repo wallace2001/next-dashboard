@@ -1,6 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import Link from "next/link";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 
@@ -31,7 +32,7 @@ const Article = ({ article }: IArticle) => {
                 >
                     <div className="w-full h-4 flex flex-row items-center mb-4">
                         <span className="w-[2px] h-full bg-foreground/30" />
-                        <span className="ml-6 text-[12px] text-foreground">{format(new Date(createdAt), 'MMMM d, yyyy')}</span>
+                        <span className="ml-6 text-[12px] text-foreground">{format(new Date(createdAt), 'MMMM d, yyyy', { locale: ptBR })}</span>
                     </div>
                     <div className="flex flex-col items-start">
                         <p className="text-[15px] mt-2 font-bold text-foreground/80">{title}</p>
