@@ -8,15 +8,9 @@ interface ProjectCardProps {
     item: Project;
 }
 
-const MAX_DESCRIPTION_LENGTH = 80;
-
 const ProjectCard: React.FC<ProjectCardProps> = ({
     item
 }) => {
-    const truncatedDescription = item.description.length > MAX_DESCRIPTION_LENGTH
-    ? item.description.substring(0, MAX_DESCRIPTION_LENGTH - 3) + '...' // Adiciona reticências se a descrição for maior que o limite
-    : item.description;
-    
     const router = useRouter();
 
     const handleClick = () => {
