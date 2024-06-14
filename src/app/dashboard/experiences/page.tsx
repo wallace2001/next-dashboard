@@ -64,7 +64,7 @@ const ExperiencesPage = () => {
         experiences?.getExperiences.forEach((experience) => {
             const date = {
                 from: new Date(experience.date.from),
-                to: new Date(experience.date.to),
+                to: experience.date.to ? new Date(experience.date.to) : null,
             };
 
             const exists = fields.find(f => f.name === experience.name);
@@ -180,6 +180,7 @@ const ExperiencesPage = () => {
                                                     {field.value?.from ? (
                                                         <>
                                                             {format(field.value?.from, "dd/MM/yyyy")} -{" "}
+                                                            {console.log(field.value)}
                                                             {field.value?.to ? format(field.value?.to, "dd/MM/yyyy") : 'Atual'}
                                                         </>
                                                     ) : field.value?.from ? (
